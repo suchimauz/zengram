@@ -1,0 +1,201 @@
+{ns zengram.types
+
+ type
+ {:zen/tags #{zen/tag}}
+
+ ;; Common types
+ parse-mode
+ {:zen/tags #{zen/schema}
+  :type     zen/string
+  :enum     [{:value "MarkdownV2"}
+             {:value "Markdown"}
+             {:value "HTML"}]}
+
+ ;; End common types
+
+ user
+ {:zen/tags #{type zen/schema}
+  :type     zen/map
+  :require  #{:id :is_bot :first_name}
+  :keys     {:id                          {:type zen/integer}
+             :is_bot                      {:type zen/boolean}
+             :first_name                  {:type zen/string}
+             :last_name                   {:type zen/string}
+             :username                    {:type zen/string}
+             :language_code               {:type zen/string}
+             :is_premium                  {:type zen/boolean}
+             :can_join_groups             {:type zen/boolean}
+             :can_read_all_group_messages {:type zen/boolean}
+             :supports_inline_queries     {:type zen/boolean}}}
+
+ chat
+ {:zen/tags #{type zen/schema}
+  :type     zen/map
+  :require  #{:id :type}
+  :keys     {:id                                      {:type zen/integer}
+             :type                                    {:type zen/string}
+             :title                                   {:type zen/string}
+             :username                                {:type zen/string}
+             :first_name                              {:type zen/string}
+             :last_name                               {:type zen/string}
+             :is_forum                                {:type zen/boolean}
+             :photo                                   {:confirms #{chat_photo}}
+             :active_usernames                        {:type  zen/vector
+                                                       :every {:type zen/string}}
+             :emoji_status_custom_emoji_id            {:type zen/string}
+             :bio                                     {:type zen/string}
+             :has_private_forwards                    {:type zen/boolean}
+             :has_restricted_voice_and_video_messages {:type zen/boolean}
+             :join_to_send_messages                   {:type zen/boolean}
+             :join_by_request                         {:type zen/boolean}
+             :description                             {:type zen/string}
+             :invite_link                             {:type zen/string}
+             :pinned_message                          {:confirms #{message}}
+             :permissions                             {:confirms #{chat_permissions}}
+             :slow_mode_delay                         {:type zen/integer}
+             :message_auto_delete_time                {:type zen/integer}
+             :has_aggressive_anti_spam_enabled        {:type zen/boolean}
+             :has_hidden_members                      {:type zen/boolean}
+             :has_protected_content                   {:type zen/boolean}
+             :sticker_set_name                        {:type zen/string}
+             :can_set_sticker_set                     {:type zen/boolean}
+             :linked_chat_id                          {:type zen/integer}
+             :location                                {:confirms #{chat_location}}}}
+
+ message-entity
+ {:zen/tags #{type zen/schema}
+  :type     zen/map
+  :require  #{:type :offset :length}
+  :keys     {:type            {:type zen/string}
+             :offset          {:type zen/integer}
+             :length          {:type zen/integer}
+             :url             {:type zen/string}
+             :user            {:confirms #{user}}
+             :language        {:type zen/string}
+             :custom_emoji_id {:type zen/string}}}
+
+ web-app-info
+ {:zen/tags #{type zen/schema}
+  :type     zen/map
+  :require #{:url}
+  :keys    {:url {:type zen/string}}}
+
+ login-url
+ {:zen/tags #{type zen/schema}
+  :type     zen/map
+  :require  #{:url}
+  :keys     {:url                  {:type zen/string}
+             :forward_text         {:type zen/string}
+             :bot_username         {:type zen/string}
+             :request_write_access {:type zen/boolean}}}
+
+ callback-game
+ {:zen/tags #{type zen/schema}
+  :type     zen/map
+  :require #{:user_id :score}
+  :keys    {:user_id {:type zen/integer}
+            :score {:type zen/integer}
+            :force {:type zen/boolean}
+            :disable_edit_message {:type zen/boolean}
+            :chat_id {:type zen/integer}
+            :message_id {:type zen/integer}
+            :inline_message_id {:type zen/string}}}
+
+ inline-keyboard-button
+ {:zen/tags #{type zen/schema}
+  :type     zen/map
+  :require  #{:text}
+  :keys     {:text                             {:type zen/string}
+             :url                              {:type zen/string}
+             :callback_data                    {:type zen/string}
+             :web_app                          {:confirms #{web-app-info}}
+             :login_url                        {:confirms #{login-url}}
+             :switch_inline_query              {:type zen/string}
+             :switch_inline_query_current_chat {:type zen/string}
+             :callback_game                    {:confirms #{callback-game}}
+             :pay                              {:type zen/boolean}}}
+
+ inline-keyboard-markup
+ {:zen/tags #{type zen/schema}
+  :type     zen/map
+  :require  #{:inline_keyboard}
+  :keys     {:inline_keyboard {:type  zen/vector
+                               :every {:type     zen/vector
+                                       :confirms #{inline-keyboard-button}}}}}
+
+ input-media-common-fields
+ {:zen/tags #{zen/schema}
+  :type     zen/map
+  :require  #{:type :media}
+  :keys     {:type             {:confirms #{parse-mode}}
+             :media            {:type zen/string}
+             :caption          {:type zen/string}
+             :parse_mode       {:confirms #{parse-mode}}
+             :caption_entities {:type  zen/vector
+                                :every {:confirms #{message-entity}}}}}
+
+ input-media-photo
+ {:zen/tags #{type zen/schema}
+  :confirms #{input-media-common-fields}
+  :type     zen/map
+  :keys     {:has_spoiler {:type zen/boolean}}}
+
+ input-media-video
+ {:zen/tags #{type zen/schema}
+  :confirms #{input-media-common-fields}
+  :type     zen/map
+  :keys     {:thumb              {:type zen/string}
+             :width              {:type zen/integer}
+             :height             {:type zen/integer}
+             :duration           {:type zen/integer}
+             :supports_streaming {:type zen/boolean}
+             :has_spoiler {:type zen/boolean}}}
+
+ input-media-animation
+ {:zen/tags #{type zen/schema}
+  :confirms #{input-media-common-fields}
+  :type     zen/map
+  :keys     {:thumb    {:type zen/string}
+             :width    {:type zen/integer}
+             :height   {:type zen/integer}
+             :duration {:type zen/integer}
+             :has_spoiler {:type zen/boolean}}}
+
+ input-media-audio
+ {:zen/tags #{type zen/schema}
+  :confirms #{input-media-common-fields}
+  :type     zen/map
+  :keys     {:thumb     {:type zen/string}
+             :duration  {:type zen/integer}
+             :title     {:type zen/string}
+             :performer {:type zen/string}}}
+
+ input-media-document
+ {:zen/tags #{type zen/schema}
+  :confirms #{input-media-common-fields}
+  :type     zen/map
+  :keys     {:thumb                          {:type zen/string}
+             :disable_content_type_detection {:type zen/boolean}}}
+
+ input-media
+ {:zen/tags #{type zen/schema}
+  :type zen/case
+  :case [{:when {:match {:type "photo"}}
+          :then {:confirms #{input-media-photo}}}
+         {:when {:match {:type "video"}}
+          :then {:confirms #{input-media-video}}}
+         {:when {:match {:type "animation"}}
+          :then {:confirms #{input-media-animation}}}
+         {:when {:match {:type "audio"}}
+          :then {:confirms #{input-media-audio}}}
+         {:when {:match {:type "document"}}
+          :then {:confirms #{input-media-document}}}]}
+ 
+ template
+ {:zen/tags #{type zen/schema}
+  :type     zen/map
+  :require #{}
+  :keys    {;
+            :url {:type zen/string}
+            ;
+            }}}

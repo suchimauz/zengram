@@ -1,0 +1,73 @@
+{ns zengram.api.edit
+ import #{zengram.api
+          zengram.types}
+
+ message_id-and-chat_id-or-inline_message_id-schema
+ {:zen/tags #{zen/schema}
+  :type     zen/case
+  :case     [{:when {:match {:inline_message_id (:zen.match/nil?)}}
+              :then {:type    zen/map
+                     :require #{:chat_id :message_id}}}
+             {:when {}
+              :then {:type    zen/map
+                     :require #{:inline_message_id}}}]}
+
+ edit-message-common-fields-schema
+ {:zen/tags #{zen/schema}
+  :confirms #{message_id-and-chat_id-or-inline_message_id-schema}
+  :type     zen/map
+  :keys     {:chat_id           {:confirms #{zengram.api/chat-id}}
+             :message_id        {:type zen/integer}
+             :inline_message_id {:type zen/string}}}
+
+ edit-message-text
+ {:zen/tags #{zengram.api/method zen/schema}
+  :confirms #{edit-message-common-fields-schema}
+  :type     zen/map
+  :require  #{:text}
+  :keys     {:text                     {:type zen/string}
+             :parse_mode               {:confirms #{zengram.types/parse-mode}}
+             :entities                 {:type  zen/vector
+                                        :every {:confirms #{zengram.types/message-entity}}}
+             :disable_web_page_preview {:type zen/boolean}
+             :reply_markup             {:confirms #{zengram.types/inline-keyboard-markup}}}}
+
+ edit-message-caption
+ {:zen/tags #{zengram.api/method zen/schema}
+  :confirms #{edit-message-common-fields-schema}
+  :type     zen/map
+  :keys     {:caption          {:type zen/string}
+             :parse_mode       {:confirms #{zengram.types/parse-mode}}
+             :caption_entities {:type  zen/vector
+                                :every {:confirms #{zengram.types/message-entity}}}
+             :reply_markup     {:confirms #{zengram.types/inline-keyboard-markup}}}}
+
+ edit-message-media
+ {:zen/tags #{zengram.api/method zen/schema}
+  :confirms #{edit-message-common-fields-schema}
+  :require  #{:media}
+  :type     zen/map
+  :keys     {:media        {:confirms #{zengram.types/input-media}}
+             :reply_markup {:confirms #{zengram.types/inline-keyboard-markup}}}}
+
+ edit-message-reply-markup
+ {:zen/tags #{zengram.api/method zen/schema}
+  :confirms #{edit-message-common-fields-schema}
+  :require  #{:media}
+  :type     zen/map
+  :keys     {:reply_markup {:confirms #{zengram.types/inline-keyboard-markup}}}}
+
+ stop-poll
+ {:zen/tags #{zengram.api/method zen/schema}
+  :require  #{:chat_id :message_id}
+  :type     zen/map
+  :keys     {:chat_id      {:confirms #{zengram.api/chat-id}}
+             :message_id   {:type zen/integer}
+             :reply_markup {:confirms #{zengram.types/inline-keyboard-markup}}}}
+
+ delete-message
+ {:zen/tags #{zengram.api/method zen/schema}
+  :require  #{:chat_id :message_id}
+  :type     zen/map
+  :keys     {:chat_id    {:confirms #{zengram.api/chat-id}}
+             :message_id {:type zen/integer}}}}

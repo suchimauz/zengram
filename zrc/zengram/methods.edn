@@ -1,0 +1,20 @@
+{ns zengram.api
+ import #{zengram.api.edit
+          zengram.api.games
+          zengram.api.inline
+          zengram.api.methods
+          zengram.api.passport
+          zengram.api.payments
+          zengram.api.stickers
+          zengram.api.updates}
+
+ chat-id
+ {:zen/tags #{zen/schema}
+  :type     zen/case
+  :case     [{:when {:type zen/string}
+              :then {:type zen/string}}
+             {:when {:type zen/integer}
+              :then {:type zen/integer}}]}
+
+ method
+ {:zen/tags #{zen/tag}}}
