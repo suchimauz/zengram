@@ -1,2 +1,2 @@
-# zengram
-Project for create Telegram Bot's on Clojure using zen-lang
+# zen-gram
+Telegram Bot Api Interface on zen-lang

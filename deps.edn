@@ -1,0 +1,31 @@
+{:paths ["src" "zrc"]
+ :deps {org.clojure/clojure       {:mvn/version "1.11.1"}
+        org.clojure/core.async    {:mvn/version "1.6.673"}
+        org.clojure/tools.logging {:mvn/version "1.2.4"}
+        
+        zen-lang/zen     {:git/url "https://github.com/zen-lang/zen"
+                          :sha "4a187de5cafcc83a101bdbca216543c9ea91d788"}
+
+        clj-http/clj-http {:mvn/version "3.12.3"}
+        potemkin/potemkin {:mvn/version "0.4.6"}}
+
+ :aliases
+ {:nrepl
+  {:extra-paths ["test"]
+   :extra-deps  {cider/cider-nrepl {:mvn/version "LATEST"}}
+   :jvm-opts ^:replace ["-XX:-OmitStackTraceInFastThrow"]
+
+   :main-opts   ["-m"           "nrepl.cmdline"
+                 "--middleware" "[cider.nrepl/cider-middleware]"
+                 "--port"       "65437"]}
+
+  :test {:extra-paths ["test"]
+         :extra-deps {healthsamurai/matcho {:mvn/version "0.3.9"}
+                      cheshire/cheshire    {:mvn/version "5.11.0"}}
+         :jvm-opts ^:replace ["-XX:-OmitStackTraceInFastThrow"]}
+
+  :kaocha
+  {:extra-deps {lambdaisland/kaocha  {:mvn/version "1.0-612"}}
+   :extra-paths ["test"]
+   :jvm-opts    ^:replace ["-XX:-OmitStackTraceInFastThrow"]
+   :main-opts   ["-m" "kaocha.runner"]}}}
