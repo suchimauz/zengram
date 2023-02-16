@@ -6,7 +6,21 @@
           zengram.api.passport
           zengram.api.payments
           zengram.api.stickers
-          zengram.api.updates}
+          zengram.api.updates
+
+          zengram.types}
+
+ reply-markup
+ {:zen/tags #{zen/schema}
+  :type     zen/case
+  :case     [{:when {:match {:keyboard (:zen.match/present?)}}
+              :then {:confirms #{zengram.types/reply-keyboard-markup}}}
+             {:when {:match {:remove_keyboard (:zen.match/present?)}}
+              :then {:confirms #{zengram.types/reply-keyboard-remove}}}
+             {:when {:match {:force_reply (:zen.match/present?)}}
+              :then {:confirms #{zengram.types/force-reply}}}
+             {:when {}
+              :then {:confirms #{zengram.types/inline-keyboard-markup}}}]}
 
  message_id-and-chat_id-or-inline_message_id-schema
  {:zen/tags #{zen/schema}

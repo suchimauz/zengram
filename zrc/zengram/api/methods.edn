@@ -2,6 +2,79 @@
  import #{zengram.api
           zengram.types}
 
+ get-me
+ {:zen/tags #{zengram.api/method zen/schema}}
+ 
+ log-out
+ {:zen/tags #{zengram.api/method zen/schema}}
+
+ close
+ {:zen/tags #{zengram.api/method zen/schema}}
+
+ send-message
+ {:zen/tags #{zengram.api/method zen/schema}
+  :type     zen/map
+  :require  #{:chat_id :text}
+  :keys     {:chat_id                     {:confirms #{zengram.api/chat-id}}
+             :message_thread_id           {:type zen/integer}
+             :text                        {:type zen/string}
+             :parse_mode                  {:confirms #{zengram.types/parse-mode}}
+             :entities                    {:type  zen/vector
+                                           :every {:confirms #{zengram.types/message-entity}}}
+             :disable_web_page_preview    {:type zen/boolean}
+             :disable_notification        {:type zen/boolean}
+             :protect_content             {:type zen/boolean}
+             :reply_to_message_id         {:type zen/integer}
+             :allow_sending_without_reply {:type zen/boolean}
+             :reply_markup                {:confirms #{zengram.api/reply-markup}}}}
+ 
+ forward-message
+ {:zen/tags #{zengram.api/method zen/schema}
+  :type     zen/map
+  :require  #{:chat_id :from_chat_id :message_id}
+  :keys     {:chat_id              {:confirms #{zengram.api/chat-id}}
+             :message_thread_id    {:type zen/integer}
+             :from_chat_id         {:confirms #{zengram.api/chat-id}}
+             :disable_notification {:type zen/boolean}
+             :protect_content      {:type zen/boolean}
+             :message_id           {:type zen/integer}}}
+ 
+ copy-message
+ {:zen/tags #{zengram.api/method zen/schema}
+  :type     zen/map
+  :require  #{:chat_id :from_chat_id :message_id}
+  :keys     {:chat_id                     {:confirms #{zengram.api/chat-id}}
+             :message_thread_id           {:type zen/integer}
+             :from_chat_id                {:confirms #{zengram.api/chat-id}}
+             :message_id                  {:type zen/integer}
+             :caption                     {:type zen/string}
+             :parse_mode                  {:confirms #{zengram.types/parse-mode}}
+             :caption_entities            {:type  zen/vector
+                                           :every {:confirms #{zengram.types/message-entity}}}
+             :disable_notification        {:type zen/boolean}
+             :protect_content             {:type zen/boolean}
+             :reply_to_message_id         {:type zen/integer}
+             :allow_sending_without_reply {:type zen/boolean}
+             :reply_markup                {:confirms #{zengram.api/reply-markup}}}}
+ 
+ send-photo
+ {:zen/tags #{zengram.api/method zen/schema}
+  :type     zen/map
+  :require  #{:chat_id :photo}
+  :keys     {:chat_id                     {:confirms #{zengram.api/chat-id}}
+             :message_thread_id           {:type zen/integer}
+             :photo                       {:type zen/string}
+             :caption                     {:type zen/string}
+             :parse_mode                  {:confirms #{zengram.types/parse-mode}}
+             :caption_entities            {:type  zen/vector
+                                           :every {:confirms #{zengram.types/message-entity}}}
+             :has_spoiler                 {:type zen/boolean}
+             :disable_notification        {:type zen/boolean}
+             :protect_content             {:type zen/boolean}
+             :reply_to_message_id         {:type zen/integer}
+             :allow_sending_without_reply {:type zen/boolean}
+             :reply_markup                {:confirms #{zengram.api/reply-markup}}}}
+ 
  template
  {:zen/tags #{zengram.api/method zen/schema}
   :type     zen/map

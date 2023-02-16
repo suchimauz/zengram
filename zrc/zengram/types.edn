@@ -577,7 +577,7 @@
              :parse_mode       {:confirms #{parse-mode}}
              :caption_entities {:type  zen/vector
                                 :every {:confirms #{message-entity}}}}}
- 
+
  inline-query-result
  {:zen/tags #{type zen/schema}
   :type     zen/case
@@ -645,6 +645,95 @@
              {:when {:match {:type "game"}}
               :then {:confirms #{inline-query-result-game}}}]}
 
+ chat-administrator-rights
+ {:zen/tags #{type zen/schema}
+  :type     zen/map
+  :require  #{:is_anonymous
+              :can_manage_chat
+              :can_delete_messages
+              :can_manage_video_chats
+              :can_restrict_members
+              :can_promote_members
+              :can_change_info
+              :can_invite_users}
+  :keys     {:is_anonymous           {:type zen/boolean}
+             :can_manage_chat        {:type zen/boolean}
+             :can_delete_messages    {:type zen/boolean}
+             :can_manage_video_chats {:type zen/boolean}
+             :can_restrict_members   {:type zen/boolean}
+             :can_promote_members    {:type zen/boolean}
+             :can_change_info        {:type zen/boolean}
+             :can_invite_users       {:type zen/boolean}
+             :can_post_messages      {:type zen/boolean}
+             :can_edit_messages      {:type zen/boolean}
+             :can_pin_messages       {:type zen/boolean}
+             :can_manage_topics      {:type zen/boolean}}}
+
+ keyboard-button-request-user
+ {:zen/tags #{type zen/schema}
+  :type     zen/map
+  :require #{:request_id}
+  :keys    {:request_id {:type zen/integer}
+            :user_is_bot {:type zen/boolean}
+            :user_is_premium {:type zen/boolean}}}
+
+ keyboard-button-request-chat
+ {:zen/tags #{type zen/schema}
+  :type     zen/map
+  :require #{:request_id :chat_is_channel}
+  :keys    {:request_id                {:type zen/integer}
+            :chat_is_channel           {:type zen/boolean}
+            :chat_is_forum             {:type zen/boolean}
+            :chat_has_username         {:type zen/boolean}
+            :chat_is_created           {:type zen/boolean}
+            :user_administrator_rights {:confirms #{chat-administrator-rights}}
+            :bot_administrator_rights  {:confirms #{chat-administrator-rights}}
+            :bot_is_member             {:type zen/boolean}}}
+
+ keyboard-button-poll-type
+ {:zen/tags #{type zen/schema}
+  :type     zen/map
+  :keys     {:type {:type zen/string}}}
+
+ keyboard-button
+ {:zen/tags #{type zen/schema}
+  :type     zen/map
+  :require  #{:text}
+  :keys     {:text             {:type zen/string}
+             :request_user     {:confirms #{keyboard-button-request-user}}
+             :request_chat     {:confirms #{keyboard-button-request-chat}}
+             :request_contact  {:type zen/boolean}
+             :request_location {:type zen/boolean}
+             :request_poll     {:confirms #{keyboard-button-poll-type}}
+             :web_app          {:confirms #{web-app-info}}}}
+
+ force-reply
+ {:zen/tags #{type zen/schema}
+  :type     zen/map
+  :require  #{:force_reply}
+  :keys     {:force_reply             {:type zen/boolean}
+             :input_field_placeholder {:type zen/string}
+             :selective               {:type zen/boolean}}}
+
+ reply-keyboard-remove
+ {:zen/tags #{type zen/schema}
+  :type     zen/map
+  :require  #{:remove_keyboard}
+  :keys     {:remove_keyboard {:type zen/boolean}
+             :selective       {:type zen/boolean}}}
+
+ reply-keyboard-markup
+ {:zen/tags #{type zen/schema}
+  :type     zen/map
+  :require  #{:keyboard}
+  :keys     {:keyboard                {:type  zen/vector
+                                       :every {:confirms #{keyboard-button}}}
+             :is_persistent           {:type zen/integer}
+             :resize_keyboard         {:type zen/boolean}
+             :one_time_keyboard       {:type zen/boolean}
+             :input_field_placeholder {:type zen/string}
+             :selective               {:type zen/boolean}}}
+ 
  template
  {:zen/tags #{type zen/schema}
   :type     zen/map
