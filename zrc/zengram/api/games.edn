@@ -1,0 +1,33 @@
+{ns zengram.api.games
+ import #{zengram.api
+          zengram.types}
+
+ send-game
+ {:zen/tags #{zengram.api/method zen/schema}
+  :type     zen/map
+  :require  #{:chat_id :game_short_name}
+  :keys     {:chat_id                     {:type zen/integer}
+             :message_thread_id           {:type zen/integer}
+             :game_short_name             {:type zen/string}
+             :disable_notification        {:type zen/boolean}
+             :protect_content             {:type zen/boolean}
+             :reply_to_message_id         {:type zen/integer}
+             :allow_sending_without_reply {:type zen/boolean}
+             :reply_markup                {:confirms #{zengram.types/inline-keyboard-markup}}}}
+
+ set-game-score
+ {:zen/tags #{zengram.api/method zen/schema}
+  :confirms #{zengram.api/ids-common-fields-schema}
+  :type     zen/map
+  :require  #{:user_id :score}
+  :keys     {:user_id              {:type zen/integer}
+             :score                {:type zen/integer}
+             :force                {:type zen/boolean}
+             :disable_edit_message {:type zen/boolean}}}
+
+ get-game-high-scores
+ {:zen/tags #{zengram.api/method zen/schema}
+  :confirms #{zengram.api/ids-common-fields-schema}
+  :type     zen/map
+  :require  #{:user_id}
+  :keys     {:user_id {:type zen/integer}}}}

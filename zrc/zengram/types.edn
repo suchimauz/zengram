@@ -127,7 +127,12 @@
  {:zen/tags #{zen/schema}
   :type     zen/map
   :require  #{:type :media}
-  :keys     {:type             {:confirms #{parse-mode}}
+  :keys     {:type             {:type zen/string
+                                :enum [{:value "photo"}
+                                       {:value "video"}
+                                       {:value "animation"}
+                                       {:value "audio"}
+                                       {:value "document"}]}
              :media            {:type zen/string}
              :caption          {:type zen/string}
              :parse_mode       {:confirms #{parse-mode}}
@@ -190,12 +195,463 @@
           :then {:confirms #{input-media-audio}}}
          {:when {:match {:type "document"}}
           :then {:confirms #{input-media-document}}}]}
+
+ labeled-price
+ {:zen/tags #{type zen/schema}
+  :type     zen/map
+  :keys    {:label {:type zen/string}
+            :amount {:type zen/integer}}}
+
+ input-text-message-content
+ {:zen/tags #{type zen/schema}
+  :type     zen/map
+  :require  #{:message_text}
+  :keys     {:message_text             {:type zen/string}
+             :parse_mode               {:confirms #{parse-mode}}
+             :entities                 {:type  zen/vector
+                                        :every {:confirms #{message-entity}}}
+             :disable_web_page_preview {:type zen/boolean}}}
+
+ input-location-message-content
+ {:zen/tags #{type zen/schema}
+  :type     zen/map
+  :require #{:latitude :longitude}
+  :keys    {:latitude               {:type zen/number}
+            :longitude              {:type zen/number}
+            :horizontal_accuracy    {:type zen/number}
+            :live_period            {:type zen/integer}
+            :heading                {:type zen/integer}
+            :proximity_alert_radius {:type zen/integer}}}
+
+ input-venue-message-content
+ {:zen/tags #{type zen/schema}
+  :type     zen/map
+  :require #{:latitude :longitude :title :address}
+  :keys    {:latitude          {:type zen/number}
+            :longitude         {:type zen/number}
+            :title             {:type zen/string}
+            :address           {:type zen/string}
+            :foursquare_id     {:type zen/string}
+            :foursquare_type   {:type zen/string}
+            :google_place_id   {:type zen/string}
+            :google_place_type {:type zen/string}}}
+
+ input-contact-message-content
+ {:zen/tags #{type zen/schema}
+  :type     zen/map
+  :require #{:phone_number :first_name}
+  :keys    {:phone_number {:type zen/string}
+            :first_name {:type zen/string}
+            :last_name {:type zen/string}
+            :vcard {:type zen/string}}}
+
+ input-invoice-message-content
+ {:zen/tags #{type zen/schema}
+  :type     zen/map
+  :require  #{:title :description :payload :provider_token :currency :prices}
+  :keys     {:title                         {:type zen/string}
+             :description                   {:type zen/string}
+             :payload                       {:type zen/string}
+             :provider_token                {:type zen/string}
+             :currency                      {:type zen/string}
+             :prices                        {:type  zen/vector
+                                             :every {:confirms #{labeled-price}}}
+             :max_tip_amount                {:type zen/integer}
+             :suggested_tip_amounts         {:type  zen/vector
+                                             :every {:type zen/integer}}
+             :provider_data                 {:type zen/string}
+             :photo_url                     {:type zen/string}
+             :photo_size                    {:type zen/integer}
+             :photo_width                   {:type zen/integer}
+             :photo_height                  {:type zen/integer}
+             :need_name                     {:type zen/boolean}
+             :need_phone_number             {:type zen/boolean}
+             :need_email                    {:type zen/boolean}
+             :need_shipping_address         {:type zen/boolean}
+             :send_phone_number_to_provider {:type zen/boolean}
+             :send_email_to_provider        {:type zen/boolean}
+             :is_flexible                   {:type zen/boolean}}}
+
+ input-message-content
+ {:zen/tags #{type zen/schema}
+  :type     zen/case
+  :case     [{:when {:match {:message_text (:zen.match/present?)}}
+              :then {:confirms #{input-text-message-content}}}
+             {:when {:match {:latitude  (:zen.match/present?)
+                             :longitude (:zen.match/present?)}}
+              :then {:confirms #{input-location-message-content}}}
+             {:when {:match {:latitude  (:zen.match/present?)
+                             :longitude (:zen.match/present?)
+                             :title     (:zen.match/present?)
+                             :address   (:zen.match/present?)}}
+              :then {:confirms #{input-venue-message-content}}}
+             {:when {:match {:phone_number (:zen.match/present?)
+                             :first_name   (:zen.match/present?)}}
+              :then {:confirms #{input-contact-message-content}}}
+             {:when {:match {:title          (:zen.match/present?)
+                             :description    (:zen.match/present?)
+                             :payload        (:zen.match/present?)
+                             :provider_token (:zen.match/present?)
+                             :currency       (:zen.match/present?)
+                             :prices         (:zen.match/present?)}}
+              :then {:confirms #{input-invoice-message-content}}}]}
+
+ inline-query-result-common-fields
+ {:zen/tags #{zen/schema}
+  :type     zen/map
+  :require  #{:type :id}
+  :keys     {:type                  {:type zen/string}
+             :id                    {:type zen/string}
+             :input_message_content {:confirms #{input-message-content}}
+             :reply_markup          {:confirms #{inline-keyboard-markup}}}}
+
+ inline-query-result-article
+ {:zen/tags #{type zen/schema}
+  :confirms #{inline-query-result-common-fields}
+  :type     zen/map
+  :require #{:title :input_message_content}
+  :keys    {:title {:type zen/string}
+            :url {:type zen/string}
+            :hide_url {:type zen/boolean}
+            :description {:type zen/string}
+            :thumb_url {:type zen/string}
+            :thumb_width {:type zen/integer}
+            :thumb_height {:type zen/integer}}}
+
+ inline-query-result-photo
+ {:zen/tags #{type zen/schema}
+  :confirms #{inline-query-result-common-fields}
+  :type     zen/map
+  :require #{:photo_url :thumb_url}
+  :keys    {:photo_url        {:type zen/string}
+            :thumb_url        {:type zen/string}
+            :photo_width      {:type zen/integer}
+            :photo_height     {:type zen/integer}
+            :title            {:type zen/string}
+            :description      {:type zen/string}
+            :caption          {:type zen/string}
+            :parse_mode       {:confirms #{parse-mode}}
+            :caption_entities {:type  zen/vector
+                               :every {:confirms #{message-entity}}}}}
+
+ inline-query-result-gif
+ {:zen/tags #{type zen/schema}
+  :confirms #{inline-query-result-common-fields}
+  :type     zen/map
+  :require  #{:gif_url :thumb_url}
+  :keys     {:gif_url          {:type zen/string}
+             :gif_width        {:type zen/integer}
+             :gif_height       {:type zen/integer}
+             :gif_duration     {:type zen/integer}
+             :thumb_url        {:type zen/string}
+             :thumb_mime_type  {:type zen/string}
+             :title            {:type zen/string}
+             :caption          {:type zen/string}
+             :parse_mode       {:confirms #{parse-mode}}
+             :caption_entities {:type  zen/vector
+                                :every {:confirms #{message-entity}}}}}
+
+ inline-query-result-mpeg4gif
+ {:zen/tags #{type zen/schema}
+  :confirms #{inline-query-result-common-fields}
+  :type     zen/map
+  :require  #{:mpeg4_url :thumb_url}
+  :keys     {:mpeg4_url        {:type zen/string}
+             :mpeg4_width      {:type zen/integer}
+             :mpeg4_height     {:type zen/integer}
+             :mpeg4_duration   {:type zen/integer}
+             :thumb_url        {:type zen/string}
+             :thumb_mime_type  {:type zen/string}
+             :title            {:type zen/string}
+             :caption          {:type zen/string}
+             :parse_mode       {:confirms #{parse-mode}}
+             :caption_entities {:type  zen/vector
+                                :every {:confirms #{message-entity}}}}}
+
+ inline-query-result-video
+ {:zen/tags #{type zen/schema}
+  :confirms #{inline-query-result-common-fields}
+  :type     zen/map
+  :require  #{:video_url :mime_type :thumb_url :title}
+  :keys     {:video_url        {:type zen/string}
+             :mime_type        {:type zen/string}
+             :thumb_url        {:type zen/string}
+             :title            {:type zen/string}
+             :caption          {:type zen/string}
+             :parse_mode       {:confirms #{parse-mode}}
+             :caption_entities {:type  zen/vector
+                                :every {:confirms #{message-entity}}}
+             :video_width      {:type zen/integer}
+             :video_height     {:type zen/integer}
+             :video_duration   {:type zen/integer}
+             :description      {:type zen/string}}}
+
+ inline-query-result-audio
+ {:zen/tags #{type zen/schema}
+  :confirms #{inline-query-result-common-fields}
+  :type     zen/map
+  :require  #{:audio_url :title}
+  :keys     {:audio_url        {:type zen/string}
+             :title            {:type zen/string}
+             :caption          {:type zen/string}
+             :parse_mode       {:confirms #{parse-mode}}
+             :caption_entities {:type  zen/vector
+                                :every {:confirms #{message-entity}}}
+             :audio_duration   {:type zen/integer}
+             :performer        {:type zen/string}}}
+
+ inline-query-result-voice
+ {:zen/tags #{type zen/schema}
+  :confirms #{inline-query-result-common-fields}
+  :type     zen/map
+  :require  #{:voice_url :title}
+  :keys     {:voice_url        {:type zen/string}
+             :title            {:type zen/string}
+             :caption          {:type zen/string}
+             :parse_mode       {:confirms #{parse-mode}}
+             :caption_entities {:type  zen/vector
+                                :every {:confirms #{message-entity}}}
+             :voice_duration   {:type zen/integer}}}
+
+ inline-query-result-document
+ {:zen/tags #{type zen/schema}
+  :confirms #{inline-query-result-common-fields}
+  :type     zen/map
+  :require  #{:title :document_url :mime_type}
+  :keys     {:title            {:type zen/string}
+             :caption          {:type zen/string}
+             :parse_mode       {:confirms #{parse-mode}}
+             :caption_entities {:type  zen/vector
+                                :every {:confirms #{message-entity}}}
+             :document_url     {:type zen/string}
+             :mime_type        {:type zen/string}
+             :description      {:type zen/string}
+             :thumb_url        {:type zen/string}
+             :thumb_width      {:type zen/integer}
+             :thumb_height     {:type zen/integer}}}
+
+ inline-query-result-location
+ {:zen/tags #{type zen/schema}
+  :confirms #{inline-query-result-common-fields}
+  :type     zen/map
+  :require  #{:latitude :longitude :title}
+  :keys     {:latitude               {:type zen/number}
+             :longitude              {:type zen/number}
+             :title                  {:type zen/string}
+             :horizontal_accuracy    {:type zen/number}
+             :live_period            {:type zen/integer}
+             :heading                {:type zen/integer}
+             :proximity_alert_radius {:type zen/integer}
+             :thumb_url              {:type zen/string}
+             :thumb_width            {:type zen/integer}
+             :thumb_height           {:type zen/integer}}}
+
+ inline-query-result-venue
+ {:zen/tags #{type zen/schema}
+  :confirms #{inline-query-result-common-fields}
+  :type     zen/map
+  :require  #{:latitude :longitude :title :address}
+  :keys     {:latitude          {:type zen/number}
+             :longitude         {:type zen/number}
+             :title             {:type zen/string}
+             :address           {:type zen/string}
+             :foursquare_id     {:type zen/string}
+             :foursquare_type   {:type zen/string}
+             :google_place_id   {:type zen/string}
+             :google_place_type {:type zen/string}
+             :thumb_url         {:type zen/string}
+             :thumb_width       {:type zen/integer}
+             :thumb_height      {:type zen/integer}}}
+
+ inline-query-result-contact
+ {:zen/tags #{type zen/schema}
+  :confirms #{inline-query-result-common-fields}
+  :type     zen/map
+  :require  #{:phone_number :first_name}
+  :keys     {:phone_number {:type zen/string}
+             :first_name   {:type zen/string}
+             :last_name    {:type zen/string}
+             :vcard        {:type zen/string}
+             :thumb_url    {:type zen/string}
+             :thumb_width  {:type zen/integer}
+             :thumb_height {:type zen/integer}}}
+
+ inline-query-result-game
+ {:zen/tags #{type zen/schema}
+  :type     zen/map
+  :require  #{:type :id :game_short_name}
+  :keys     {:type            {:type zen/string}
+             :id              {:type zen/string}
+             :game_short_name {:type zen/string}
+             :reply_markup    {:confirms #{inline-keyboard-markup}}}}
+
+ inline-query-result-cached-photo
+ {:zen/tags #{type zen/schema}
+  :confirms #{inline-query-result-common-fields}
+  :type     zen/map
+  :require  #{:photo_file_id}
+  :keys     {:photo_file_id    {:type zen/string}
+             :title            {:type zen/string}
+             :description      {:type zen/string}
+             :caption          {:type zen/string}
+             :parse_mode       {:confirms #{parse-mode}}
+             :caption_entities {:type  zen/vector
+                                :every {:confirms #{message-entity}}}}}
+
+ inline-query-result-cached-gif
+ {:zen/tags #{type zen/schema}
+  :confirms #{inline-query-result-common-fields}
+  :type     zen/map
+  :require  #{:gif_file_id}
+  :keys     {:gif_file_id      {:type zen/string}
+             :title            {:type zen/string}
+             :caption          {:type zen/string}
+             :parse_mode       {:confirms #{parse-mode}}
+             :caption_entities {:type  zen/vector
+                                :every {:confirms #{message-entity}}}}}
+
+ inline-query-result-cached-mpeg4gif
+ {:zen/tags #{type zen/schema}
+  :confirms #{inline-query-result-common-fields}
+  :type     zen/map
+  :require  #{:mpeg4_file_id}
+  :keys     {:mpeg4_file_id    {:type zen/string}
+             :title            {:type zen/string}
+             :caption          {:type zen/string}
+             :parse_mode       {:confirms #{parse-mode}}
+             :caption_entities {:type  zen/vector
+                                :every {:confirms #{message-entity}}}}}
+
+ inline-query-result-cached-sticker
+ {:zen/tags #{type zen/schema}
+  :confirms #{inline-query-result-common-fields}
+  :type     zen/map
+  :require  #{:sticker_file_id}
+  :keys     {:sticker_file_id {:type zen/string}}}
+
+ inline-query-result-cached-document
+ {:zen/tags #{type zen/schema}
+  :confirms #{inline-query-result-common-fields}
+  :type     zen/map
+  :require  #{:document_file_id}
+  :keys     {:document_file_id {:type zen/string}
+             :description      {:type zen/string}
+             :title            {:type zen/string}
+             :caption          {:type zen/string}
+             :parse_mode       {:confirms #{parse-mode}}
+             :caption_entities {:type  zen/vector
+                                :every {:confirms #{message-entity}}}}}
+
+ inline-query-result-cached-video
+ {:zen/tags #{type zen/schema}
+  :confirms #{inline-query-result-common-fields}
+  :type     zen/map
+  :require  #{:video_file_id}
+  :keys     {:video_file_id    {:type zen/string}
+             :title            {:type zen/string}
+             :description      {:type zen/string}
+             :caption          {:type zen/string}
+             :parse_mode       {:confirms #{parse-mode}}
+             :caption_entities {:type  zen/vector
+                                :every {:confirms #{message-entity}}}}}
+
+ inline-query-result-cached-voice
+ {:zen/tags #{type zen/schema}
+  :confirms #{inline-query-result-common-fields}
+  :type     zen/map
+  :require  #{:voice_file_id}
+  :keys     {:voice_file_id    {:type zen/string}
+             :title            {:type zen/string}
+             :caption          {:type zen/string}
+             :parse_mode       {:confirms #{parse-mode}}
+             :caption_entities {:type  zen/vector
+                                :every {:confirms #{message-entity}}}}}
+
+ inline-query-result-cached-audio
+ {:zen/tags #{type zen/schema}
+  :confirms #{inline-query-result-common-fields}
+  :type     zen/map
+  :require  #{:audio_file_id}
+  :keys     {:audio_file_id    {:type zen/string}
+             :caption          {:type zen/string}
+             :parse_mode       {:confirms #{parse-mode}}
+             :caption_entities {:type  zen/vector
+                                :every {:confirms #{message-entity}}}}}
  
+ inline-query-result
+ {:zen/tags #{type zen/schema}
+  :type     zen/case
+  :case     [{:when {:match {:type "article"}}
+              :then {:confirms #{inline-query-result-article}}}
+
+             {:when {:match {:type          "photo"
+                             :photo_file_id (:zen.match/present?)}}
+              :then {:confirms #{inline-query-result-cached-photo}}}
+             {:when {:match {:type          "photo"
+                             :photo_file_id (:zen.match/nil?)}}
+              :then {:confirms #{inline-query-result-photo}}}
+
+             {:when {:match {:type        "gif"
+                             :gif_file_id (:zen.match/present?)}}
+              :then {:confirms #{inline-query-result-cached-gif}}}
+             {:when {:match {:type        "gif"
+                             :gif_file_id (:zen.match/nil?)}}
+              :then {:confirms #{inline-query-result-gif}}}
+
+             {:when {:match {:type          "mpeg4_gif"
+                             :mpeg4_file_id (:zen.match/present?)}}
+              :then {:confirms #{inline-query-result-cached-mpeg4gif}}}
+             {:when {:match {:type          "mpeg4_gif"
+                             :mpeg4_file_id (:zen.match/nil?)}}
+              :then {:confirms #{inline-query-result-mpeg4gif}}}
+
+             {:when {:match {:type          "video"
+                             :video_file_id (:zen.match/present?)}}
+              :then {:confirms #{inline-query-result-cached-video}}}
+             {:when {:match {:type          "video"
+                             :video_file_id (:zen.match/nil?)}}
+              :then {:confirms #{inline-query-result-video}}}
+
+             {:when {:match {:type          "audio"
+                             :audio_file_id (:zen.match/present?)}}
+              :then {:confirms #{inline-query-result-cached-audio}}}
+             {:when {:match {:type          "audio"
+                             :audio_file_id (:zen.match/nil?)}}
+              :then {:confirms #{inline-query-result-audio}}}
+
+             {:when {:match {:type          "voice"
+                             :voice_file_id (:zen.match/present?)}}
+              :then {:confirms #{inline-query-result-cached-voice}}}
+             {:when {:match {:type          "voice"
+                             :voice_file_id (:zen.match/nil?)}}
+              :then {:confirms #{inline-query-result-voice}}}
+
+             {:when {:match {:type             "document"
+                             :document_file_id (:zen.match/present?)}}
+              :then {:confirms #{inline-query-result-cached-document}}}
+             {:when {:match {:type             "document"
+                             :document_file_id (:zen.match/nil?)}}
+              :then {:confirms #{inline-query-result-document}}}
+
+             {:when {:match {:type "location"}}
+              :then {:confirms #{inline-query-result-location}}}
+
+             {:when {:match {:type "venue"}}
+              :then {:confirms #{inline-query-result-venue}}}
+
+             {:when {:match {:type "contact"}}
+              :then {:confirms #{inline-query-result-contact}}}
+
+             {:when {:match {:type "game"}}
+              :then {:confirms #{inline-query-result-game}}}]}
+
  template
  {:zen/tags #{type zen/schema}
   :type     zen/map
   :require #{}
   :keys    {;
-            :url {:type zen/string}
+            :test1 {:type zen/string}
+            :test2 {:type zen/integer}
+            :test3 {:type zen/boolean}
             ;
             }}}

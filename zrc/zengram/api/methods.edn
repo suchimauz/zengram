@@ -6,4 +6,6 @@
  {:zen/tags #{zengram.api/method zen/schema}
   :type     zen/map
   :require  #{}
-  :keys     {}}}
+  :keys     {:test1 {:type zen/string}
+             :test2 {:type zen/integer}
+             :test3 {:type zen/boolean}}}}

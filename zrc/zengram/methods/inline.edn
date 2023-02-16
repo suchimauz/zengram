@@ -1,9 +1,0 @@
-{ns zengram.api.inline
- import #{zengram.api
-          zengram.types}
-
- template
- {:zen/tags #{zengram.api/method zen/schema}
-  :type     zen/map
-  :require  #{}
-  :keys     {}}}

@@ -2,27 +2,9 @@
  import #{zengram.api
           zengram.types}
 
- message_id-and-chat_id-or-inline_message_id-schema
- {:zen/tags #{zen/schema}
-  :type     zen/case
-  :case     [{:when {:match {:inline_message_id (:zen.match/nil?)}}
-              :then {:type    zen/map
-                     :require #{:chat_id :message_id}}}
-             {:when {}
-              :then {:type    zen/map
-                     :require #{:inline_message_id}}}]}
-
- edit-message-common-fields-schema
- {:zen/tags #{zen/schema}
-  :confirms #{message_id-and-chat_id-or-inline_message_id-schema}
-  :type     zen/map
-  :keys     {:chat_id           {:confirms #{zengram.api/chat-id}}
-             :message_id        {:type zen/integer}
-             :inline_message_id {:type zen/string}}}
-
  edit-message-text
  {:zen/tags #{zengram.api/method zen/schema}
-  :confirms #{edit-message-common-fields-schema}
+  :confirms #{zengram.api/ids-common-fields-schema}
   :type     zen/map
   :require  #{:text}
   :keys     {:text                     {:type zen/string}
@@ -34,7 +16,7 @@
 
  edit-message-caption
  {:zen/tags #{zengram.api/method zen/schema}
-  :confirms #{edit-message-common-fields-schema}
+  :confirms #{zengram.api/ids-common-fields-schema}
   :type     zen/map
   :keys     {:caption          {:type zen/string}
              :parse_mode       {:confirms #{zengram.types/parse-mode}}
@@ -44,7 +26,7 @@
 
  edit-message-media
  {:zen/tags #{zengram.api/method zen/schema}
-  :confirms #{edit-message-common-fields-schema}
+  :confirms #{zengram.api/ids-common-fields-schema}
   :require  #{:media}
   :type     zen/map
   :keys     {:media        {:confirms #{zengram.types/input-media}}
@@ -52,7 +34,7 @@
 
  edit-message-reply-markup
  {:zen/tags #{zengram.api/method zen/schema}
-  :confirms #{edit-message-common-fields-schema}
+  :confirms #{zengram.api/ids-common-fields-schema}
   :require  #{:media}
   :type     zen/map
   :keys     {:reply_markup {:confirms #{zengram.types/inline-keyboard-markup}}}}

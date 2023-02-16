@@ -1,0 +1,23 @@
+{ns zengram.api.inline
+ import #{zengram.api
+          zengram.types}
+
+ answer-inline-query
+ {:zen/tags #{zengram.api/method zen/schema}
+  :type     zen/map
+  :require  #{:inline_query_id :results}
+  :keys     {:inline_query_id     {:type zen/string}
+             :results             {:type  zen/vector
+                                   :every {:confirms #{zengram.types/inline-query-result}}}
+             :cache_time          {:type zen/integer}
+             :is_personal         {:type zen/boolean}
+             :next_offset         {:type zen/string}
+             :switch_pm_text      {:type zen/string}
+             :switch_pm_parameter {:type zen/string}}}
+
+ answer-web-app-query
+ {:zen/tags #{zengram.api/method zen/schema}
+  :type     zen/map
+  :require  #{:web_app_query_id :result}
+  :keys     {:web_app_query_id {:type zen/string}
+             :result           {:confirms #{zengram.types/inline-query-result}}}}}
